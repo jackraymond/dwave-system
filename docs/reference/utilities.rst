@@ -27,4 +27,3 @@ Temperature Utilities
    maximum_pseudolikelihood_temperature
    freezeout_effective_temperature
    fast_effective_temperature
-   
