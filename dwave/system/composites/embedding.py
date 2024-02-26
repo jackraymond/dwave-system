@@ -263,6 +263,26 @@ class EmbeddingComposite(dimod.ComposedSampler):
             parameters['initial_state'] = {u: state[v]
                                            for v, chain in embedding.items()
                                            for u in chain}
+            
+        if 'logical_flux_biases' in parameters:
+            # if flux_biases is provided then the magnetic field can
+            # be spread uniformly on each qubit composing a chain
+            # (functionally equivalent to h, up to s dependence)
+            # If the child sampler does not have a num_qubit property
+            if 'flux_biases' not in parameters:
+                parameters['flux_biases']=[0]*num_qubits
+            for v, chain in embedding.items():
+                for q in chain:
+                    parameters['flux_biases'][q] += logical_flux_biases[v]/len(chain)
+                    
+        if 'logical_anneal_offsets' in parameters:
+            # anneal_offsets is a delay, can apply uniformly across a chain
+            # on top of any physical level values.
+            if 'anneal_offsets' not in parameters:
+                parameters['anneal_offsets']=[0]*num_qubits
+            for v, chain in embedding.items():
+                for q in chain:
+                    parameters['flux_biases'][q] = anneal_offsets[v]
 
         if self.scale_aware and 'ignored_interactions' in child.parameters:
 
