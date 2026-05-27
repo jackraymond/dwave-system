@@ -388,7 +388,6 @@ class ParallelEmbeddingComposite(dimod.Composite, dimod.Structured, dimod.Sample
         answer.info.update(info)
         return answer
 
-
     def sample_multiple(
         self,
         bqms: list[dimod.BinaryQuadraticModel],
