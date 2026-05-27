@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Update behaviour of ParallelEmbeddingComposite so that under
+    auto_scale=True all embedded bqms are rescaled independently to use
+    the maximum available range.
