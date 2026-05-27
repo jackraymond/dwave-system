@@ -38,7 +38,9 @@ class TestParallelEmbeddings(unittest.TestCase):
             dimod.StructureComposite(MockDWaveSampler(), [0, 1], [(0, 1)])
         )
 
-        self.assertEqual(_child_property_dfs(sampler, property_name="j_range"), [-1.0, 1.0])
+        self.assertEqual(
+            _child_property_dfs(sampler, property_name="j_range"), [-1.0, 1.0]
+        )
 
     def test_auto_scale_embedded_bqm(self):
         class SubstituteSampler(dimod.RandomSampler):
@@ -46,6 +48,7 @@ class TestParallelEmbeddings(unittest.TestCase):
                 sampleset = super().sample(bqm, **kwargs)
                 sampleset.info["bqm"] = bqm
                 return sampleset
+
         max_num_emb = 3
         j_range = [-2.0, 2.0]
         h_range = [-3.0, 3.0]
@@ -58,25 +61,31 @@ class TestParallelEmbeddings(unittest.TestCase):
         solver = ParallelEmbeddingComposite(
             mock_sampler,
             source=source,
-            embedder_kwargs={'max_num_emb': max_num_emb},
+            embedder_kwargs={"max_num_emb": max_num_emb},
         )
 
         bqms = [
-            dimod.BinaryQuadraticModel.from_ising({0: 0.0, 1: np.random.random()}, {(0, 1): 0.0})
+            dimod.BinaryQuadraticModel.from_ising(
+                {0: 0.0, 1: np.random.random()}, {(0, 1): 0.0}
+            )
             for _ in range(max_num_emb)
         ]
         _, info = solver.sample_multiple(bqms)
         linear_embedded_bqm = info["bqm"]
         print(set(linear_embedded_bqm.linear.values()), {0.0, h_range[1]})
         self.assertSetEqual(set(linear_embedded_bqm.linear.values()), {0.0, h_range[1]})
-        
+
         bqms = [
-            dimod.BinaryQuadraticModel.from_ising({0: 0.0, 1: 0.0}, {(0, 1): np.random.random()})
+            dimod.BinaryQuadraticModel.from_ising(
+                {0: 0.0, 1: 0.0}, {(0, 1): np.random.random()}
+            )
             for _ in range(max_num_emb)
         ]
         _, info = solver.sample_multiple(bqms)
         quadratic_embedded_bqm = info["bqm"]
-        self.assertTrue(all(v==j_range[1] for v in quadratic_embedded_bqm.quadratic.values()))
+        self.assertTrue(
+            all(v == j_range[1] for v in quadratic_embedded_bqm.quadratic.values())
+        )
 
     def test_assertions(self):
         with self.assertRaises(ValueError):
