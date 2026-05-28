@@ -36,16 +36,18 @@ __all__ = ["ParallelEmbeddingComposite"]
 
 
 def _child_property_dfs(
-    sampler: dimod.Sampler, seen: None | set = None, property_name: str = "h_range"
+    sampler: dimod.Sampler,
+    seen: set[dimod.Sampler] | None = None,
+    property_name: str = "h_range",
 ) -> Any:
     """Find a property from children
 
-    Find some property of child solvers by depth first search.
+    Find some property of child solvers by depth-first search.
     Typically a QPU solver will be found at the root of the hierarchy,
     and a property such as h_range will be returned, that is otherwise
-    mot propagated through composition.
+    not propagated through composition.
 
-    This functions qualitatively mirrors dimod.child_structure_dfs and may
+    This function qualitatively mirrors dimod.child_structure_dfs and may
     later be moved to that location and imported.
 
     Args:
@@ -53,11 +55,11 @@ def _child_property_dfs(
             :class:`.Structured` or composed sampler with at least
             one structured child.
 
-        seen (set, optional, default=False):
+        seen (set, optional, default=None):
             IDs of already checked child samplers.
 
         property_name (str, default='h_range'):
-            A property to search and return
+            A property to search and return.
 
     Returns:
         The discovered property, or None if not found.
@@ -342,7 +344,7 @@ class ParallelEmbeddingComposite(dimod.Composite, dimod.Structured, dimod.Sample
     ) -> dimod.SampleSet:
         """Sample from the specified binary quadratic model.
 
-        Sample sets are concatenated in the the same order as the ``embeddings``
+        Sample sets are concatenated in the same order as the ``embeddings``
         parameter used to instantiate the :class:`.ParallelEmbeddingComposite`
         class.
 
@@ -419,7 +421,8 @@ class ParallelEmbeddingComposite(dimod.Composite, dimod.Structured, dimod.Sample
 
             **kwargs:
                 Optional keyword arguments for the sampling method.
-                Note that if :code:`auto_scale=True` all methods are
+                Note that if :code:`auto_scale=True`, each embedded BQM is
+                independently scaled to maximize programmable range.
 
         Returns:
             Tuple: A list of :class:`~dimod.SampleSet`, one per embedding, and
@@ -429,7 +432,7 @@ class ParallelEmbeddingComposite(dimod.Composite, dimod.Structured, dimod.Sample
             See examples in the :class:`.ParallelEmbeddingComposite` class.
 
         See also:
-            The :meth:`.sample_multiple` method.
+            The :meth:`.sample` method.
         """
 
         # apply the embeddings to the given problem to tile it across the child sampler
@@ -473,6 +476,6 @@ class ParallelEmbeddingComposite(dimod.Composite, dimod.Structured, dimod.Sample
         return responses, tiled_response.info
 
     @property
-    def num_embeddings(self):
+    def num_embeddings(self) -> int:
         """Number of embeddings available for replicating the problem."""
         return len(self.embeddings)
