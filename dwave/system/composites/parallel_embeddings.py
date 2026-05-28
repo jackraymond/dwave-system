@@ -22,7 +22,7 @@ This allows multiple independent sampling processes to be conducted in
 parallel.
 """
 
-from typing import Optional, Any
+from typing import Any
 
 import networkx as nx
 
@@ -339,7 +339,7 @@ class ParallelEmbeddingComposite(dimod.Composite, dimod.Structured, dimod.Sample
     def sample(
         self,
         bqm: dimod.BinaryQuadraticModel,
-        chain_strength: Optional[float] = None,
+        chain_strength: float | None = None,
         **kwargs,
     ) -> dimod.SampleSet:
         """Sample from the specified binary quadratic model.
@@ -393,8 +393,8 @@ class ParallelEmbeddingComposite(dimod.Composite, dimod.Structured, dimod.Sample
     def sample_multiple(
         self,
         bqms: list[dimod.BinaryQuadraticModel],
-        chain_strengths: Optional[list] = None,
-        initial_states: Optional[list] = None,
+        chain_strengths: list | None = None,
+        initial_states: list | None = None,
         **kwargs,
     ) -> tuple[list[dimod.SampleSet], dict]:
         """Sample from the specified binary quadratic models.
