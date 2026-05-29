@@ -37,8 +37,9 @@ __all__ = ["ParallelEmbeddingComposite"]
 
 def _child_property_dfs(
     sampler: dimod.Sampler,
+    property_name: str,
+    default: Any | None = None,
     seen: set[dimod.Sampler] | None = None,
-    property_name: str = "h_range",
 ) -> Any:
     """Find a property from children
 
@@ -51,15 +52,17 @@ def _child_property_dfs(
     later be moved to that location and imported.
 
     Args:
-        sampler (:obj:`.Sampler`):
-            :class:`.Structured` or composed sampler with at least
-            one structured child.
+        sampler:
+            A :ref:`index_dimod` sampler, or a composed sampler.
 
-        seen (set, optional, default=None):
-            IDs of already checked child samplers.
-
-        property_name (str, default='h_range'):
+        property_name:
             A property to search and return.
+
+        default:
+            Default value for a property not found.
+
+        seen:
+            IDs of already checked child samplers.
 
     Returns:
         The discovered property, or None if not found.
@@ -95,7 +98,7 @@ def _child_property_dfs(
             # tree has no child samplers
             pass
 
-    return None
+    return default
 
 
 class ParallelEmbeddingComposite(dimod.Composite, dimod.Structured, dimod.Sampler):
