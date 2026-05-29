@@ -50,8 +50,9 @@ class TestParallelEmbeddings(unittest.TestCase):
                 return sampleset
 
         max_num_emb = 3
-        j_range = [-2.0, 2.0]
-        h_range = [-3.0, 3.0]
+        # Ranges can be asymmetric, should be [negative, positive] non-zero
+        j_range = [-1e-6 - np.random.random(), 1e-6 + np.random.random()]
+        h_range = [-1e-6 - np.random.random(), 1e-6 + np.random.random()]
         mock_sampler = MockDWaveSampler(
             properties={"h_range": h_range, "j_range": j_range},
             substitute_sampler=SubstituteSampler(),
@@ -72,8 +73,11 @@ class TestParallelEmbeddings(unittest.TestCase):
         ]
         _, info = solver.sample_multiple(bqms)
         linear_embedded_bqm = info["bqm"]
-        print(set(linear_embedded_bqm.linear.values()), {0.0, h_range[1]})
-        self.assertSetEqual(set(linear_embedded_bqm.linear.values()), {0.0, h_range[1]})
+        self.assertSetEqual(
+            set(round(1e6 * v) for v in linear_embedded_bqm.linear.values()),
+            {0, round(1e6 * h_range[1])},
+            f"All submitted non-negative fields should be 0 or rescaled to {h_range[1]}, but some elements deviate at 6 significant figures",
+        )
 
         bqms = [
             dimod.BinaryQuadraticModel.from_ising(
@@ -84,7 +88,11 @@ class TestParallelEmbeddings(unittest.TestCase):
         _, info = solver.sample_multiple(bqms)
         quadratic_embedded_bqm = info["bqm"]
         self.assertTrue(
-            all(v == j_range[1] for v in quadratic_embedded_bqm.quadratic.values())
+            all(
+                round(1e6 * v) == round(1e6 * j_range[1])
+                for v in quadratic_embedded_bqm.quadratic.values()
+            ),
+            f"All submitted couplings should be rescaled to {j_range[1]}, but some elements deviate at 6 significant figures",
         )
 
     def test_assertions(self):
