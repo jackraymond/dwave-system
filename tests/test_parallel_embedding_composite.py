@@ -74,8 +74,8 @@ class TestParallelEmbeddings(unittest.TestCase):
         _, info = solver.sample_multiple(bqms)
         linear_embedded_bqm = info["bqm"]
         self.assertSetEqual(
-            set(round(1e6 * v) for v in linear_embedded_bqm.linear.values()),
-            {0, round(1e6 * h_range[1])},
+            set(round(v, 6) for v in linear_embedded_bqm.linear.values()),
+            {0, round(h_range[1], 6)},
             f"All submitted non-negative fields should be 0 or rescaled to {h_range[1]}, but some elements deviate at 6 significant figures",
         )
 
@@ -89,7 +89,7 @@ class TestParallelEmbeddings(unittest.TestCase):
         quadratic_embedded_bqm = info["bqm"]
         self.assertTrue(
             all(
-                round(1e6 * v) == round(1e6 * j_range[1])
+                round(v, 6) == round(j_range[1], 6)
                 for v in quadratic_embedded_bqm.quadratic.values()
             ),
             f"All submitted couplings should be rescaled to {j_range[1]}, but some elements deviate at 6 significant figures",

@@ -460,7 +460,7 @@ class ParallelEmbeddingComposite(dimod.Composite, dimod.Structured, dimod.Sample
             new_embedded_bqm = dwave.embedding.embed_bqm(
                 bqm, embedding, target_adjacency, chain_strength=chain_strength
             )
-            if auto_scale is True:
+            if auto_scale:
                 # Rescale to common bounds:
                 new_embedded_bqm.normalize(
                     bias_range=self.h_range, quadratic_range=self.j_range
